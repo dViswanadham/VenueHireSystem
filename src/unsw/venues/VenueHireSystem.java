@@ -37,7 +37,7 @@ public class VenueHireSystem {
             String size = json.getString("size");
             addRoom(venue, room, size);
             break;
-
+        
         case "request":
             String id = json.getString("id");
             LocalDate start = LocalDate.parse(json.getString("start"));
@@ -61,10 +61,11 @@ public class VenueHireSystem {
 
     public JSONObject request(String id, LocalDate start, LocalDate end,
             int small, int medium, int large) {
+    	
         JSONObject result = new JSONObject();
 
-        // TODO Process the request commmand
-
+        // TODO Process the request command
+        	
         // FIXME Shouldn't always produce the same answer
         result.put("status", "success");
         result.put("venue", "Zoo");
@@ -84,11 +85,13 @@ public class VenueHireSystem {
 
         while (sc.hasNextLine()) {
             String line = sc.nextLine();
+            
             if (!line.trim().equals("")) {
                 JSONObject command = new JSONObject(line);
                 system.processCommand(command);
             }
         }
+        
         sc.close();
     }
 
