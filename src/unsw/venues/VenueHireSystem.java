@@ -24,7 +24,7 @@ public class VenueHireSystem {
      * Constructs a venue hire system. Initially, the system contains no venues,
      * rooms, or bookings.
      */
-    public VenueHireSystem() {
+    private VenueHireSystem() {
         // TODO Auto-generated constructor stub
     }
 
