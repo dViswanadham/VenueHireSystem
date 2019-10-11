@@ -4,18 +4,16 @@
 package unsw.venues;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Scanner;
 
-import org.json.JSONArray;
 import org.json.JSONObject;
 
+import unsw.venues.RoomInfo;
+
 /**
- * Venue Hire System for COMP2511.
  *
- * A basic prototype to serve as the "back-end" of a venue hire system. Input
- * and output is in JSON format.
- *
- * @author Robert Clifton-Everest
+ * @author Dheeraj Viswanadham z5204820
  *
  */
 public class VenueHireSystem {
@@ -24,8 +22,13 @@ public class VenueHireSystem {
      * Constructs a venue hire system. Initially, the system contains no venues,
      * rooms, or bookings.
      */
+	private ArrayList<VenueInfo> list_venue;
+	private ArrayList<Reservation> list_booking;
+	
     private VenueHireSystem() {
-        // TODO Auto-generated constructor stub
+        // DONE Auto-generated constructor stub
+    	list_venue = new ArrayList<VenueInfo>();
+    	list_booking = new ArrayList<Reservation>();
     }
 
     private void processCommand(JSONObject json) {
@@ -35,9 +38,12 @@ public class VenueHireSystem {
             String venue = json.getString("venue");
             String room = json.getString("room");
             String size = json.getString("size");
-            addRoom(venue, room, size);
+            
+            VenueInfo v = new VenueInfo(venue);
+            RoomInfo r = new RoomInfo(room, size);
+            Master.increaseRCount(list_venue, v, r);
             break;
-        
+
         case "request":
             String id = json.getString("id");
             LocalDate start = LocalDate.parse(json.getString("start"));
@@ -46,53 +52,58 @@ public class VenueHireSystem {
             int medium = json.getInt("medium");
             int large = json.getInt("large");
 
-            JSONObject result = request(id, start, end, small, medium, large);
-
-            System.out.println(result.toString(2));
+            Reservation request = new Reservation(id, start, end, small, medium, large);            
+            if (!Master.checkRequest(list_venue, request)) break;
+            else Master.addRequest(list_booking, request);
             break;
 
-        // TODO Implement other commands
+        // COMPLETED Implement other commands
+        case "change":
+        	String newId = json.getString("id");
+            LocalDate newStart = LocalDate.parse(json.getString("start"));
+            LocalDate newEnd = LocalDate.parse(json.getString("end"));
+            int newSmall = json.getInt("small");
+            int newMedium = json.getInt("medium");
+            int newLarge = json.getInt("large");
+            
+            Reservation newRequest = new Reservation(newId, newStart, newEnd, newSmall, newMedium, newLarge);
+            if (Master.checkRequest(list_booking, newId) == null) break;
+            else {
+            	Reservation oldRequest = Master.checkRequest(list_booking, newId);
+            	oldRequest.cancelRoom(oldRequest.getStart(), oldRequest.getEnd());
+                if (!Master.checkRequest(list_venue, newRequest)) break;
+                else Master.changeRequest(list_booking, oldRequest, newRequest);
+            }
+        	break;
+        	
+        case "cancel":
+        	String delId = json.getString("id");
+
+        	if (Master.checkRequests(list_booking, delId).isEmpty()) break;
+        	else Master.cancelRequest(list_booking, Master.checkRequests(list_booking, delId));        	
+        	break;
+        	
+        case "list":
+        	String listVenue = json.getString("venue");
+
+        	if (Master.checkVenue(list_venue, listVenue) == null) break;
+        	else Master.listVenue(list_booking, Master.checkVenue(list_venue, listVenue));
+        	break;
         }
     }
-
-    private void addRoom(String venue, String room, String size) {
-        // TODO Process the room command
-    }
-
-    public JSONObject request(String id, LocalDate start, LocalDate end,
-            int small, int medium, int large) {
-    	
-        JSONObject result = new JSONObject();
-
-        // TODO Process the request command
-        	
-        // FIXME Shouldn't always produce the same answer
-        result.put("status", "success");
-        result.put("venue", "Zoo");
-
-        JSONArray rooms = new JSONArray();
-        rooms.put("Penguin");
-        rooms.put("Hippo");
-
-        result.put("rooms", rooms);
-        return result;
-    }
-
-    public static void main(String[] args) {
+    
+	public static void main(String[] args) {
         VenueHireSystem system = new VenueHireSystem();
 
         Scanner sc = new Scanner(System.in);
 
         while (sc.hasNextLine()) {
             String line = sc.nextLine();
-            
             if (!line.trim().equals("")) {
                 JSONObject command = new JSONObject(line);
                 system.processCommand(command);
             }
         }
-        
         sc.close();
     }
-
 }
