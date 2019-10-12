@@ -5,7 +5,7 @@
  * and Java manuals online, so code may be very similar to them. 
  * Also, have used similar codes in labs.
  * 
- * Started: 28/09/2019 | Last edited: 12/10/2019
+ * Started: 28/09/2019 | Last edited: 13/10/2019
  */
 
 package unsw.venues;
@@ -17,6 +17,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 public interface Master {
+	
 	Result print = Result.obtainStill();
 	/**
 	 * Checks if venue exists in list_venue
@@ -43,7 +44,7 @@ public interface Master {
 	}
 	/**
 	 * Check available VenueInfo from list_venue
-	 * if venue available setVenueInfo
+	 * if venue available inputVInfo
 	 * else print JSON failureInput
 	 * requests size < 0 increaseRCount to request according to size
 	 * @param list_venue the list_venue from the VenueInfoHireSystem
@@ -53,30 +54,30 @@ public interface Master {
 	public static boolean scanRes(ArrayList<VenueInfo> list_venue, Reservation request) {
 		VenueInfo venue = null;
 		for (VenueInfo v : list_venue) {
-			if (request.checkAvailability(v)) {
+			if (request.scanFree(v)) {
 				venue = v;
-				request.setVenueInfo(venue);
-				venue.equals(request.getVenueInfo());
+				request.inputVInfo(venue);
+				venue.equals(request.obtainVInfo());
 				break;
 			}
 		}
-		if (request.getVenueInfo() == null) {
+		if (request.obtainVInfo() == null) {
 			print.printObj(print.failureInput());
 			return false;
 		}
-		if (request.getSmall() >= 0) {
-    		ArrayList<RoomInfo> freeSmallRooms = request.getVenueInfo().searchSmallRoom(request.getStart(), request.getEnd());
-    		request.checkRoom(freeSmallRooms, request.getSmall());
+		if (request.obtainSRoom() >= 0) {
+    		ArrayList<RoomInfo> freeSmallRooms = request.obtainVInfo().scanSRooms(request.obtainBeginDate(), request.obtainFinishDate());
+    		request.scanFreeR(freeSmallRooms, request.obtainSRoom());
     	}
-		if (request.getMedium() >= 0) {
-    		ArrayList<RoomInfo> freeMediumRooms = request.getVenueInfo().searchMediumRoom(request.getStart(), request.getEnd());
-    		request.checkRoom(freeMediumRooms, request.getMedium());
+		if (request.obtainMRoom() >= 0) {
+    		ArrayList<RoomInfo> freeMediumRooms = request.obtainVInfo().scanMRooms(request.obtainBeginDate(), request.obtainFinishDate());
+    		request.scanFreeR(freeMediumRooms, request.obtainMRoom());
     	}
-    	if (request.getLarge() >= 0) {
-    		ArrayList<RoomInfo> freeLargeRooms = request.getVenueInfo().searchLargeRoom(request.getStart(), request.getEnd());
-    		request.checkRoom(freeLargeRooms, request.getLarge());
+    	if (request.obtainLRoom() >= 0) {
+    		ArrayList<RoomInfo> freeLargeRooms = request.obtainVInfo().scanLRooms(request.obtainBeginDate(), request.obtainFinishDate());
+    		request.scanFreeR(freeLargeRooms, request.obtainLRoom());
     	}
-    	request.updateRoom(request.getStart(), request.getEnd());
+    	request.amendChanges(request.obtainBeginDate(), request.obtainFinishDate());
 		return true;
 	}
 	/**
@@ -89,12 +90,12 @@ public interface Master {
 		JSONObject result = new JSONObject();
     	list_booking.add(request);
     	print.confirmInput(result);
-    	print.setField(result, "venue", request.getVenueInfoName());
+    	print.editLoc(result, "venue", request.obtainVTitle());
     	JSONArray rooms = new JSONArray();
     	for (RoomInfo r : request.obtainListRooms()) {
-    		print.setField(rooms, r.obtainTitle());
+    		print.editLoc(rooms, r.obtainTitle());
     	}
-    	print.addJSONArray(result, "rooms", rooms);
+    	print.insertArr(result, "rooms", rooms);
     	print.printObj(result);
 	}
 	/**
@@ -109,12 +110,12 @@ public interface Master {
 		list_booking.remove(oldRequest);
 		list_booking.add(newRequest);
 		print.confirmInput(result);
-		print.setField(result, "venue", newRequest.getVenueInfoName());
+		print.editLoc(result, "venue", newRequest.obtainVTitle());
 		JSONArray rooms = new JSONArray();
     	for (RoomInfo r : newRequest.obtainListRooms()) {
-    		print.setField(rooms, r.obtainTitle());
+    		print.editLoc(rooms, r.obtainTitle());
     	}
-    	print.addJSONArray(result, "rooms", rooms);
+    	print.insertArr(result, "rooms", rooms);
     	print.printObj(result);
 	}
 	/**
@@ -142,7 +143,7 @@ public interface Master {
 	public static ArrayList<Reservation> scanMult(ArrayList<Reservation> list_booking, String id) {
 		ArrayList<Reservation> requestList = new ArrayList<Reservation>();
 		for (Reservation r : list_booking) {
-			if (r.getId().equals(id)) requestList.add(r);
+			if (r.obtainResNo().equals(id)) requestList.add(r);
 		}
 		if (requestList.isEmpty()) print.printObj(print.failureInput());
 		return requestList;
@@ -161,7 +162,7 @@ public interface Master {
 					RoomInfo toDel = null;
 					for (RoomInfo r : request.obtainListRooms()) {
 						toDel = r;
-						r.delDate(request.getStart(), request.getEnd());
+						r.remPeriod(request.obtainBeginDate(), request.obtainFinishDate());
 					}
 					request.obtainListRooms().remove(toDel);
 					if (request.obtainListRooms().isEmpty()) iterator.remove();
@@ -196,23 +197,23 @@ public interface Master {
 		ArrayList<Reservation> sortedBookingList = Service.orderPeriod(list_booking);
 		for (RoomInfo room : venue.obtainRList()) {
 			JSONObject result = new JSONObject();
-			print.setField(result, "room", room.obtainTitle());
+			print.editLoc(result, "room", room.obtainTitle());
 			JSONArray bookings = new JSONArray();
 			for (int i = 0; i < sortedBookingList.size(); i++) {
 				if (sortedBookingList.get(i).obtainListRooms().isEmpty()) continue;
 				for (RoomInfo room2 : sortedBookingList.get(i).obtainListRooms()) {
 					if (room2.equals(room)) {
 						JSONObject booking = new JSONObject();
-						print.setField(booking, "id", sortedBookingList.get(i).obtainResNo());
-						print.setField(booking, "start", sortedBookingList.get(i).getStart());
-						print.setField(booking, "end", sortedBookingList.get(i).getEnd());
-						print.addJSONObject(bookings, booking);
+						print.editLoc(booking, "id", sortedBookingList.get(i).obtainResNo());
+						print.editLoc(booking, "start", sortedBookingList.get(i).obtainBeginDate());
+						print.editLoc(booking, "end", sortedBookingList.get(i).obtainFinishDate());
+						print.insertObj(bookings, booking);
 					}
 				}
 			}
-			print.addJSONArray(result, "reservations", bookings);
-			print.addJSONObject(array, result);
+			print.insertArr(result, "reservations", bookings);
+			print.insertObj(array, result);
 		}
-		print.jsonArray(array);
+		print.printArr(array);
 	}
 }
