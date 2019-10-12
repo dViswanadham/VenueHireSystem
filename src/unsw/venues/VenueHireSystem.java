@@ -1,6 +1,13 @@
 /**
+ * @author Dheeraj Viswanadham z5204820
  *
+ * Acknowledgement: have done some external research on sites such as StackOverflow 
+ * and Java manuals online, so code may be very similar to them. 
+ * Also, have used similar codes in labs.
+ * 
+ * Started: 28/09/2019 | Last edited: 12/10/2019
  */
+
 package unsw.venues;
 
 import java.time.LocalDate;
@@ -11,11 +18,7 @@ import org.json.JSONObject;
 
 import unsw.venues.RoomInfo;
 
-/**
- *
- * @author Dheeraj Viswanadham z5204820
- *
- */
+
 public class VenueHireSystem {
 
     /**
