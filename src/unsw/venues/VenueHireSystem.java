@@ -44,7 +44,7 @@ public class VenueHireSystem {
             
             VenueInfo v = new VenueInfo(venue);
             RoomInfo r = new RoomInfo(room, size);
-            Master.increaseRCount(list_venue, v, r);
+            Master.appendR(list_venue, v, r);
             break;
 
         case "request":
@@ -56,8 +56,8 @@ public class VenueHireSystem {
             int large = json.getInt("large");
 
             Reservation request = new Reservation(id, start, end, small, medium, large);            
-            if (!Master.checkRequest(list_venue, request)) break;
-            else Master.addRequest(list_booking, request);
+            if (!Master.scanRes(list_venue, request)) break;
+            else Master.insertRes(list_booking, request);
             break;
 
         // COMPLETED Implement other commands
@@ -70,27 +70,27 @@ public class VenueHireSystem {
             int newLarge = json.getInt("large");
             
             Reservation newRequest = new Reservation(newId, newStart, newEnd, newSmall, newMedium, newLarge);
-            if (Master.checkRequest(list_booking, newId) == null) break;
+            if (Master.scanRes(list_booking, newId) == null) break;
             else {
-            	Reservation oldRequest = Master.checkRequest(list_booking, newId);
-            	oldRequest.cancelRoom(oldRequest.getStart(), oldRequest.getEnd());
-                if (!Master.checkRequest(list_venue, newRequest)) break;
-                else Master.changeRequest(list_booking, oldRequest, newRequest);
+            	Reservation oldRequest = Master.scanRes(list_booking, newId);
+            	oldRequest.revokeRes(oldRequest.obtainBeginDate(), oldRequest.obtainFinishDate());
+                if (!Master.scanRes(list_venue, newRequest)) break;
+                else Master.amendRes(list_booking, oldRequest, newRequest);
             }
         	break;
         	
         case "cancel":
         	String delId = json.getString("id");
 
-        	if (Master.checkRequests(list_booking, delId).isEmpty()) break;
-        	else Master.cancelRequest(list_booking, Master.checkRequests(list_booking, delId));        	
+        	if (Master.scanMult(list_booking, delId).isEmpty()) break;
+        	else Master.revokeRes(list_booking, Master.scanMult(list_booking, delId));        	
         	break;
         	
         case "list":
-        	String listVenue = json.getString("venue");
+        	String vList = json.getString("venue");
 
-        	if (Master.checkVenue(list_venue, listVenue) == null) break;
-        	else Master.listVenue(list_booking, Master.checkVenue(list_venue, listVenue));
+        	if (Master.scanValidV(list_venue, vList) == null) break;
+        	else Master.vList(list_booking, Master.scanValidV(list_venue, vList));
         	break;
         }
     }

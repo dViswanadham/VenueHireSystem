@@ -16,25 +16,25 @@ import java.util.Iterator;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-public interface Command {
-	JsonOutput print = JsonOutput.getInstance();
+public interface Master {
+	Result print = Result.obtainStill();
 	/**
 	 * Checks if venue exists in list_venue
 	 * if venue exists set the venue to the existing venue
 	 * then check if room exist in venue 
-	 * if room doens't exist add room to venue's arrayList<Room>
-	 * else print JSON errorMessage
+	 * if room doens't exist add room to venue's arrayList<RoomInfo>
+	 * else print JSON failureInput
 	 * @param list_venue the list_venue from the VenueInfoHireSystem
 	 * @param venue 
 	 * @param room
 	 */
-	public static void increaseRCount(ArrayList<VenueInfo> list_venue, VenueInfo venue, Room room){
+	public static void appendR(ArrayList<VenueInfo> list_venue, VenueInfo venue, RoomInfo room){
 		for (VenueInfo v : list_venue) {
-			if (v.getName().equals(venue.getName())) venue = v;
+			if (v.obtainTitle().equals(venue.obtainTitle())) venue = v;
 		}
-		for (Room r : venue.getRoomList()) {
+		for (RoomInfo r : venue.obtainRList()) {
 			if (r.equals(room)) {
-				print.jsonObject(print.errorMessage());
+				print.printObj(print.failureInput());
 				return;
 			}
 		}
@@ -44,13 +44,13 @@ public interface Command {
 	/**
 	 * Check available VenueInfo from list_venue
 	 * if venue available setVenueInfo
-	 * else print JSON errorMessage
+	 * else print JSON failureInput
 	 * requests size < 0 increaseRCount to request according to size
 	 * @param list_venue the list_venue from the VenueInfoHireSystem
 	 * @param request
 	 * @return boolean
 	 */
-	public static boolean scanRes(ArrayList<VenueInfo> list_venue, Request request) {
+	public static boolean scanRes(ArrayList<VenueInfo> list_venue, Reservation request) {
 		VenueInfo venue = null;
 		for (VenueInfo v : list_venue) {
 			if (request.checkAvailability(v)) {
@@ -61,19 +61,19 @@ public interface Command {
 			}
 		}
 		if (request.getVenueInfo() == null) {
-			print.jsonObject(print.errorMessage());
+			print.printObj(print.failureInput());
 			return false;
 		}
 		if (request.getSmall() >= 0) {
-    		ArrayList<Room> freeSmallRooms = request.getVenueInfo().searchSmallRoom(request.getStart(), request.getEnd());
+    		ArrayList<RoomInfo> freeSmallRooms = request.getVenueInfo().searchSmallRoom(request.getStart(), request.getEnd());
     		request.checkRoom(freeSmallRooms, request.getSmall());
     	}
 		if (request.getMedium() >= 0) {
-    		ArrayList<Room> freeMediumRooms = request.getVenueInfo().searchMediumRoom(request.getStart(), request.getEnd());
+    		ArrayList<RoomInfo> freeMediumRooms = request.getVenueInfo().searchMediumRoom(request.getStart(), request.getEnd());
     		request.checkRoom(freeMediumRooms, request.getMedium());
     	}
     	if (request.getLarge() >= 0) {
-    		ArrayList<Room> freeLargeRooms = request.getVenueInfo().searchLargeRoom(request.getStart(), request.getEnd());
+    		ArrayList<RoomInfo> freeLargeRooms = request.getVenueInfo().searchLargeRoom(request.getStart(), request.getEnd());
     		request.checkRoom(freeLargeRooms, request.getLarge());
     	}
     	request.updateRoom(request.getStart(), request.getEnd());
@@ -85,17 +85,17 @@ public interface Command {
 	 * @param list_booking the list_booking from the VenueInfoHireSystem
 	 * @param request
 	 */
-	public static void insertRes(ArrayList<Request> list_booking, Request request){
+	public static void insertRes(ArrayList<Reservation> list_booking, Reservation request){
 		JSONObject result = new JSONObject();
     	list_booking.add(request);
-    	print.successMessage(result);
+    	print.confirmInput(result);
     	print.setField(result, "venue", request.getVenueInfoName());
     	JSONArray rooms = new JSONArray();
-    	for (Room r : request.getRoomList()) {
-    		print.setField(rooms, r.getName());
+    	for (RoomInfo r : request.obtainListRooms()) {
+    		print.setField(rooms, r.obtainTitle());
     	}
     	print.addJSONArray(result, "rooms", rooms);
-    	print.jsonObject(result);
+    	print.printObj(result);
 	}
 	/**
 	 * Remove oldRequest and add newRequest to list_booking
@@ -104,47 +104,47 @@ public interface Command {
 	 * @param oldRequest to remove
 	 * @param newRequest to add
 	 */
-	public static void amendRes(ArrayList<Request> list_booking, Request oldRequest, Request newRequest) {
+	public static void amendRes(ArrayList<Reservation> list_booking, Reservation oldRequest, Reservation newRequest) {
 		JSONObject result = new JSONObject();
 		list_booking.remove(oldRequest);
 		list_booking.add(newRequest);
-		print.successMessage(result);
+		print.confirmInput(result);
 		print.setField(result, "venue", newRequest.getVenueInfoName());
 		JSONArray rooms = new JSONArray();
-    	for (Room r : newRequest.getRoomList()) {
-    		print.setField(rooms, r.getName());
+    	for (RoomInfo r : newRequest.obtainListRooms()) {
+    		print.setField(rooms, r.obtainTitle());
     	}
     	print.addJSONArray(result, "rooms", rooms);
-    	print.jsonObject(result);
+    	print.printObj(result);
 	}
 	/**
 	 * Check if request exist in list_booking
-	 * else print JSON errorMessage 
+	 * else print JSON failureInput 
 	 * @param list_booking the list_booking from the VenueInfoHireSystem
 	 * @param id of a request
 	 * @return request based on id
 	 */
-	public static Request scanRes(ArrayList<Request> list_booking, String id) {
-		Request request = null;
-		for (Request r : list_booking) {
-			if (r.getId().equals(id)) return request = r;
+	public static Reservation scanRes(ArrayList<Reservation> list_booking, String id) {
+		Reservation request = null;
+		for (Reservation r : list_booking) {
+			if (r.obtainResNo().equals(id)) return request = r;
 		}
-		print.jsonObject(print.errorMessage());
+		print.printObj(print.failureInput());
 		return request;
 	}
 	/**
 	 * Check if request exist in list_booking
-	 * else print JSON errorMessage
+	 * else print JSON failureInput
 	 * @param list_booking the list_booking from the VenueInfoHireSystem
 	 * @param id of a request
-	 * @return  ArrayList<Request> based on id
+	 * @return  ArrayList<Reservation> based on id
 	 */
-	public static ArrayList<Request> scanRes(ArrayList<Request> list_booking, String id) {
-		ArrayList<Request> requestList = new ArrayList<Request>();
-		for (Request r : list_booking) {
+	public static ArrayList<Reservation> scanMult(ArrayList<Reservation> list_booking, String id) {
+		ArrayList<Reservation> requestList = new ArrayList<Reservation>();
+		for (Reservation r : list_booking) {
 			if (r.getId().equals(id)) requestList.add(r);
 		}
-		if (requestList.isEmpty()) print.jsonObject(print.errorMessage());
+		if (requestList.isEmpty()) print.printObj(print.failureInput());
 		return requestList;
 	}
 	/**
@@ -153,26 +153,26 @@ public interface Command {
 	 * @param list_booking the list_booking from the VenueInfoHireSystem
 	 * @param requestList
 	 */
-	public static void revokeRes(ArrayList<Request> list_booking, ArrayList<Request> requestList) {
-		Iterator<Request> iterator = list_booking.iterator();
+	public static void revokeRes(ArrayList<Reservation> list_booking, ArrayList<Reservation> requestList) {
+		Iterator<Reservation> iterator = list_booking.iterator();
 		while (iterator.hasNext()) {
-			for (Request request : requestList) {
+			for (Reservation request : requestList) {
 				if (request.equals(iterator.next())) {
-					Room toDel = null;
-					for (Room r : request.getRoomList()) {
+					RoomInfo toDel = null;
+					for (RoomInfo r : request.obtainListRooms()) {
 						toDel = r;
 						r.delDate(request.getStart(), request.getEnd());
 					}
-					request.getRoomList().remove(toDel);
-					if (request.getRoomList().isEmpty()) iterator.remove();
+					request.obtainListRooms().remove(toDel);
+					if (request.obtainListRooms().isEmpty()) iterator.remove();
 				}
 			}
 		}
-		print.jsonObject(print.successMessage());
+		print.printObj(print.confirmInput());
 	}
 	/**
 	 * Check if venue exist in list_venue
-	 * else print JSON errorMessage
+	 * else print JSON failureInput
 	 * @param list_venue the list_venue from the VenueInfoHireSystem
 	 * @param venueName
 	 * @return venue based on venueName
@@ -180,9 +180,9 @@ public interface Command {
 	public static VenueInfo scanValidV(ArrayList<VenueInfo> list_venue, String venueName) {
 		VenueInfo venue = null;
 		for (VenueInfo v : list_venue) {
-			if (v.getName().equals(venueName)) return venue = v;
+			if (v.obtainTitle().equals(venueName)) return venue = v;
 		}
-		print.jsonObject(print.errorMessage());
+		print.printObj(print.failureInput());
 		return venue;
 	}
 	/**
@@ -191,19 +191,19 @@ public interface Command {
 	 * @param list_booking the list_booking from the VenueInfoHireSystem
 	 * @param venue
 	 */
-	public static void vList(ArrayList<Request> list_booking, VenueInfo venue) {
+	public static void vList(ArrayList<Reservation> list_booking, VenueInfo venue) {
 		JSONArray array = new JSONArray();
-		ArrayList<Request> sortedBookingList = Service.orderPeriod(list_booking);
-		for (Room room : venue.getRoomList()) {
+		ArrayList<Reservation> sortedBookingList = Service.orderPeriod(list_booking);
+		for (RoomInfo room : venue.obtainRList()) {
 			JSONObject result = new JSONObject();
-			print.setField(result, "room", room.getName());
+			print.setField(result, "room", room.obtainTitle());
 			JSONArray bookings = new JSONArray();
 			for (int i = 0; i < sortedBookingList.size(); i++) {
-				if (sortedBookingList.get(i).getRoomList().isEmpty()) continue;
-				for (Room room2 : sortedBookingList.get(i).getRoomList()) {
+				if (sortedBookingList.get(i).obtainListRooms().isEmpty()) continue;
+				for (RoomInfo room2 : sortedBookingList.get(i).obtainListRooms()) {
 					if (room2.equals(room)) {
 						JSONObject booking = new JSONObject();
-						print.setField(booking, "id", sortedBookingList.get(i).getId());
+						print.setField(booking, "id", sortedBookingList.get(i).obtainResNo());
 						print.setField(booking, "start", sortedBookingList.get(i).getStart());
 						print.setField(booking, "end", sortedBookingList.get(i).getEnd());
 						print.addJSONObject(bookings, booking);
@@ -213,6 +213,6 @@ public interface Command {
 			print.addJSONArray(result, "reservations", bookings);
 			print.addJSONObject(array, result);
 		}
-		print.jsonArray(array);	
+		print.jsonArray(array);
 	}
 }
