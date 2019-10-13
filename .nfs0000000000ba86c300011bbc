@@ -5,8 +5,8 @@
 { "command": "list", "venue": "Dance" }
 { "command": "cancel", "id": "Zoo Party" }
 { "command": "list", "venue": "Dance" }
-{ "command": "change", "id": "Zoo Party", "start": "2019-08-29", "end": "2019-09-01", "small": 0, "medium": 1, "large": 0 }
+{ "command": "change", "id": "Zoo Party", "start": "2019-08-28", "end": "2019-09-01", "small": 0, "medium": 1, "large": 0 }
 { "command": "list", "venue": "Dance" }
 { "command": "cancel", "id": "Zoo Party" }
-{ "command": "request", "id": "Zoo Party", "start": "2019-08-29", "end": "2019-09-01", "small": 0, "medium": 1, "large": 0 }
+{ "command": "request", "id": "Zoo Party", "start": "2019-08-28", "end": "2019-09-01", "small": 0, "medium": 1, "large": 0 }
 { "command": "list", "venue": "Dance" }
