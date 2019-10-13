@@ -1,0 +1,9 @@
+{ "command": "room", "venue": "Dance", "room": "Penguin", "size": "medium" }
+{ "command": "room", "venue": "Dance", "room": "Penguin", "size": "large" }
+{ "command": "request", "id": "Zoo Party", "start": "2019-09-01", "end": "2019-09-02", "small": 0, "medium": 1, "large": 0 }
+{ "command": "request", "id": "Dance Party", "start": "2019-09-02", "end": "2019-09-04", "small": 0, "medium": 1, "large": 0 }
+{ "command": "request", "id": "Zebra Party", "start": "2019-08-28", "end": "2019-09-01", "small": 0, "medium": 1, "large": 0 }
+{ "command": "list", "venue": "Dance" }
+{ "command": "cancel", "id": "Dance Party" }
+{ "command": "request", "id": "Dance Party", "start": "2019-08-28", "end": "2019-09-01", "small": 0, "medium": 0, "large": 1 }
+{ "command": "list", "venue": "Dance" }

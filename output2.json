@@ -1,0 +1,7 @@
+{"venue":"Dance","rooms":["Penguin"],"status":"success"}
+{"status":"rejected"}
+{"status":"rejected"}
+[{"reservations":[{"start":"2019-09-01","end":"2019-09-02","id":"Zoo Party"}],"room":"Penguin"},{"reservations":[],"room":"Penguin"}]
+{"status":"rejected"}
+{"venue":"Dance","rooms":["Penguin"],"status":"success"}
+[{"reservations":[{"start":"2019-09-01","end":"2019-09-02","id":"Zoo Party"}],"room":"Penguin"},{"reservations":[{"start":"2019-08-28","end":"2019-09-01","id":"Dance Party"}],"room":"Penguin"}]

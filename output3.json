@@ -1,0 +1,11 @@
+{"status":"rejected"}
+[{"reservations":[],"room":"Ocelot"}]
+{"venue":"Dance","rooms":["Ocelot"],"status":"success"}
+[{"reservations":[{"start":"2019-09-01","end":"2019-09-02","id":"Zoo Party"}],"room":"Ocelot"}]
+{"status":"success"}
+[{"reservations":[],"room":"Ocelot"}]
+{"status":"rejected"}
+[{"reservations":[],"room":"Ocelot"}]
+{"status":"rejected"}
+{"venue":"Dance","rooms":["Ocelot"],"status":"success"}
+[{"reservations":[{"start":"2019-08-29","end":"2019-09-01","id":"Zoo Party"}],"room":"Ocelot"}]
